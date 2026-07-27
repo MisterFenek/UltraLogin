@@ -1,56 +1,52 @@
-# UltraLogin — Server-Side Auth for Minecraft 1.21.1
+![Mod banner](https://cdn.modrinth.com/data/cached_images/3cc2c5c84f9996bef19076a15da4f2e49b6874f2.png)
 
-![Minecraft Version](https://img.shields.io/badge/Minecraft-1.21.1-brightgreen)
-![NeoForge](https://img.shields.io/badge/NeoForge-21.1.x-orange)
-![Java Version](https://img.shields.io/badge/Java-21%2B-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
-
-**UltraLogin** is a modern, lightweight, high-performance server-side authentication mod for offline-mode (`online-mode=false`) Minecraft servers running **NeoForge 1.21.1**. Inspired by AuthMe, it provides pre-login player isolation, BCrypt password security, IP-based session auto-login, anti-bruteforce bans, anti-alt registration limits, operator IP binding, and optional SMTP email password recovery.
-
-It is **100% server-side**: no client-side mod or installation is required for joining players.
-
----
+**UltraLogin** is a modern, lightweight, high-performance **100% server-side** authorization mod for Minecraft **1.21.X - 26.2 (NeoForge)** servers operating in `online-mode=false`. Inspired by legendary plugins like AuthMe, UltraLogin brings modern security standards, email recovery, and multi-database support to modern modded Minecraft servers, without any client-side mods.
 
 ## Features
 
-* **Pre-Login Isolation (Sandbox):** While unauthenticated, players cannot move, interact with blocks or entities, open containers, chat, run unauthorized commands, take damage, drop items, or pick up items. Their inventory and position are safely stashed and restored upon authentication or disconnect.
-* **BCrypt Password Hashing:** Passwords are hashed using BCrypt with configurable cost factors. All crypto and database operations run on Java 21 Virtual Threads (`Executors.newVirtualThreadPerTaskExecutor`) to keep the Minecraft main server loop completely stutter-free.
-* **IP-Bound Sessions:** Players rejoining from the same IP address within a configurable window (default 10 minutes) automatically skip `/login`.
-* **Anti-Bruteforce Defense:** Automatically issues temporary IP bans (default 10 minutes) after exceeding maximum failed login attempts (default 4 attempts).
-* **Anti-Alt Protection:** Limits the number of registered accounts per IP address (default 2 accounts).
-* **Admin / Operator IP Binding:** Allows server administrators to bind specific OP player accounts to designated IP addresses.
-* **SMTP Email Password Recovery:** Players can attach an email address to their account and receive one-time 8-character recovery codes via SMTP (Jakarta Mail with SSL/STARTTLS support and customizable HTML/TXT templates).
-* **Dual Database Support:** Native support for local **SQLite** (default zero-config) and high-concurrency **MySQL / MariaDB** via HikariCP connection pooling.
-* **Multi-Language Support:** Bundled with English (`en`) and Russian (`ru`) localizations. Custom languages automatically generate template configuration files.
-
----
+* **Pre-Login Isolation (Sandbox):** Unauthenticated players cannot move, chat, use items, take damage, open containers, or execute unauthorized commands. 
+* **Virtual Thread Async Engine:** All BCrypt password hashing, database operations, and SMTP email sending run off the main server thread on **Java 21 Virtual Threads**.
+* **BCrypt Hashing:** Industry-standard password hashing with customizable work factors to resist offline cracking.
+* **Smart IP Sessions:** Auto-login players returning from the same IP within a configurable time window (skips repetitive `/login`).
+* **Anti-Bruteforce & Anti-Alt Protection:** 
+  * Automatically bans malicious IP addresses after failed login attempts.
+  * Restricts maximum registered accounts per IP to prevent multi-accounting.
+* **OP Account IP Binding:** Bind operator (`/op`) accounts to specific IP addresses. Prevents administrative hijackings even if an OP password is compromised.
+* **Email Password Recovery:** Integrated SMTP client (SSL & STARTTLS supported) allowing players to recover forgotten passwords via single-use 8-character codes with strict rate-limiting.
+* **Flexible Database Backends:**
+  * **SQLite** (Default) — Zero configuration required, automatic `.db` creation.
+  * **MySQL / MariaDB** — High-performance connection pooling via **HikariCP**.
+* **100% Customizable & Localized:** English (`en`) and Russian (`ru`) included out of the box. Fully customizable TOML message files and HTML/TXT email templates.
 
 <details>
-<summary>Commands & Usage</summary>
+<summary>Commands & Permissions Reference</summary>
 
-### Player Commands
-* `/register <password> <confirm>` (alias `/reg`) — Register a new account.
-* `/login <password>` (alias `/l`) — Log into an existing account.
-* `/changepassword <oldPassword> <newPassword>` (alias `/changepass`) — Change your password.
-* `/unregister <password>` — Delete your account (if enabled in config).
-* `/email add <email> <confirm>` — Bind an email address to your account.
-* `/email change <oldEmail> <newEmail>` — Update your bound email address.
-* `/recovery <email>` — Request a password recovery code via email.
-* `/recovery confirm <code> <newPassword>` — Reset your password using a recovery code.
-* `/ultralogin` (alias `/ul`, `/ulogin`) — View mod information and your current authentication status.
+### Player Commands (Available to Everyone)
+| Command | Aliases | Description |
+| :--- | :--- | :--- |
+| `/ul` | `/ulogin` | Show mod summary, your auth status, and available commands |
+| `/register <password> <confirm>` | `/reg` | Register a new account |
+| `/login <password>` | `/l` | Log in to an existing account |
+| `/changepassword <old> <new>` | `/changepass` | Change account password |
+| `/unregister <password>` | — | Delete your account (if enabled in config) |
+| `/email add <email> <confirm>` | — | Bind a recovery email address |
+| `/email change <old> <new>` | — | Update registered recovery email address |
+| `/recovery <email>` | — | Request a password reset code via email |
+| `/recovery confirm <code> <newPass>` | — | Reset password using the code received in email |
 
-### Admin Commands (Requires OP / Permission Level 3)
-* `/ul admin info [nickname]` — View database and account details for a player or server system status.
-* `/ul admin register <nickname> <password>` — Force-register an account.
-* `/ul admin unregister <nickname>` — Force-delete an account.
-* `/ul admin changepassword <nickname> <newPassword>` — Reset a player's password.
-* `/ul admin accounts <nickname|ip>` — List all accounts linked to an IP address or player.
-* `/ul admin email show|set|remove <nickname> [email]` — Manage player email bindings.
-* `/ul admin reload` — Reload configuration, localization files, and email templates.
+### Admin Commands (Requires OP Level 3)
+| Command | Description |
+| :--- | :--- |
+| `/ul admin info` | View detailed system status (DB backend, sessions, email status) |
+| `/ul admin info <nickname>` | View detailed account info (IPs, dates, email) |
+| `/ul admin register <nickname> <password>` | Force-register an account |
+| `/ul admin unregister <nickname>` | Delete a player's account and kick if online |
+| `/ul admin changepassword <nickname> <newPass>` | Reset a player's password and invalidate sessions |
+| `/ul admin accounts <ip/nickname>` | List all accounts registered or last seen from an IP |
+| `/ul admin email <show\|set\|remove> <nick>` | Manage player's bound email |
+| `/ul admin reload` | Reload configuration, messages, and email templates live |
 
 </details>
-
----
 
 <details>
 <summary>Configuration Overview</summary>
