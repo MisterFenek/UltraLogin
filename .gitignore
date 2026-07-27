@@ -23,6 +23,7 @@ desktop.ini
 
 # Project local artifacts & runtime databases
 AGENTS.md
+.codebase-memory/
 *.db
 run/
 logs/
