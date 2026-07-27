@@ -1,0 +1,94 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.142'
+    id 'com.github.spotbugs' version '6.0.26'
+}
+
+version = project.mod_version
+group = 'com.ultralogin'
+
+base {
+    archivesName = 'ultralogin'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+neoForge {
+    version = project.neo_version
+
+    mods {
+        ultralogin {
+            sourceSet(sourceSets.main)
+        }
+    }
+
+    // Give the unit-test source set the same NeoForge/Minecraft classpath as main.
+    addModdingDependenciesTo(sourceSets.test)
+}
+
+dependencies {
+    // Password hashing (pure Java BCrypt, no native libs required)
+    jarJar(implementation('at.favre.lib:bcrypt:0.10.2'))
+    jarJar(implementation('at.favre.lib:bytes:1.6.1'))
+
+    // Database connection pool + drivers
+    jarJar(implementation('com.zaxxer:HikariCP:5.1.0'))
+    jarJar(implementation('org.xerial:sqlite-jdbc:3.46.1.3'))
+    // 2.7.x used intentionally: mariadb-java-client 3.x declares waffle-jna as a required
+    // JPMS module for Windows auth, which is unavailable in the Minecraft ModLauncher layer
+    // and causes a FindException crash at startup. The 2.x branch predates JPMS modules
+    // and has no such dependency, while remaining fully compatible with MySQL / MariaDB.
+    jarJar(implementation('org.mariadb.jdbc:mariadb-java-client:2.7.12'))
+
+    // SMTP (Jakarta Mail + Angus implementation)
+    jarJar(implementation('jakarta.mail:jakarta.mail-api:2.1.3'))
+    jarJar(implementation('org.eclipse.angus:angus-mail:2.0.4'))
+    jarJar(implementation('jakarta.activation:jakarta.activation-api:2.1.3'))
+    jarJar(implementation('org.eclipse.angus:angus-activation:2.0.2'))
+
+    // Unit tests
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Security static analysis (find-sec-bugs detectors for SpotBugs)
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.13.0'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events 'passed', 'failed', 'skipped'
+        exceptionFormat 'full'
+    }
+}
+
+spotbugs {
+    ignoreFailures = true
+    // Focus on real bugs and security issues, not style.
+    reportLevel = com.github.spotbugs.snom.Confidence.valueOf('MEDIUM')
+}
+
+spotbugsTest.enabled = false
+
+spotbugsMain {
+    reports {
+        html { required = true }
+        xml { required = true }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    // Lock the compiler to Java 21 public API. Without --release, a newer host JDK
+    // (e.g. JDK 25) could silently accept APIs that don't exist in Java 21 at runtime.
+    options.release = 21
+}

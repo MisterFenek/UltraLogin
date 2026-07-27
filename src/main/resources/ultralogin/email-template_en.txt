@@ -1,0 +1,9 @@
+{project} — password recovery
+
+Hello, {player}!
+
+You requested a password recovery. Your one-time code: {code}
+
+Enter on the server: /recovery confirm {code} <new_password>
+
+The code is valid for {ttl} minutes. If you did not request a recovery, please ignore this email.

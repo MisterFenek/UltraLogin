@@ -1,0 +1,83 @@
+# UltraLogin messages. Supports '&' color codes and {0}, {1}... placeholders.
+
+[prelogin]
+need_register = "&eWelcome! Please register: &a/register <password> <repeat_password>"
+need_login = "&eWelcome back! Please log in: &a/login <password>"
+reminder = "&cYou are not logged in. Use /login or /register."
+timeout_kick = "&cAuthentication time expired. Please rejoin and try again."
+blocked_chat = "&cChat is unavailable until you log in."
+blocked_command = "&cThis command is unavailable until you log in."
+blocked_action = "&cActions are blocked until you log in."
+session_restored = "&aSession restored — you were logged in automatically."
+
+[register]
+success = "&aRegistration complete! Enjoy the game."
+already_registered = "&cYou are already registered. Use /login <password>."
+passwords_mismatch = "&cPasswords do not match."
+password_too_short = "&cPassword is too short (minimum {0} characters)."
+password_too_long = "&cPassword is too long (maximum {0} characters)."
+too_many_accounts = "&cThe maximum number of accounts ({0}) is already registered from your IP."
+
+[login]
+success = "&aYou have logged in successfully!"
+wrong_password = "&cWrong password. Attempts left: {0}"
+not_registered = "&cYou are not registered. Use /register."
+already_logged_in = "&cYou are already logged in."
+bruteforce_ban = "&cToo many failed attempts. Your IP is banned for {0} min."
+banned_kick = "&cYour IP is temporarily banned for password bruteforcing. Try again later."
+
+[password]
+changed = "&aPassword changed successfully."
+wrong_old = "&cWrong old password."
+
+[unregister]
+success = "&aAccount deleted. You will be disconnected."
+disabled = "&cAccount deletion is disabled on this server."
+wrong_password = "&cWrong password."
+
+[email]
+subject = "{0} — password recovery"
+added = "&aEmail &e{0} &abound successfully."
+changed = "&aEmail changed to &e{0}&a."
+mismatch = "&cEmail addresses do not match."
+invalid = "&cInvalid email address."
+wrong_old = "&cThe old email is incorrect."
+not_set = "&cNo email is bound to this account."
+already_set = "&cAn email is already bound. Use /email change."
+reminder = "&eWe recommend binding an email: &a/email add <email> <email>"
+required = "&cThis server requires a bound email: /email add <email> <email>"
+disabled = "&cEmail features are disabled on this server."
+
+[recovery]
+sent = "&aA recovery code was sent to your email. Enter: &e/recovery confirm <code> <new_password>"
+wrong_email = "&cThe given email does not match the bound one."
+wrong_code = "&cWrong or expired recovery code."
+success = "&aPassword reset. Now log in: /login <new_password>"
+cooldown = "&cYou can request a code at most once every {0} min."
+send_failed = "&cFailed to send the email. Contact an administrator."
+
+[admin]
+registered = "&aAccount &e{0} &aregistered."
+unregistered = "&aAccount &e{0} &aremoved from the database."
+password_set = "&aPassword for player &e{0} &areset."
+not_found = "&cAccount &e{0} &cnot found."
+reloaded = "&aConfiguration and messages reloaded."
+email_shown = "&eEmail of player {0}: &a{1}"
+email_set = "&aEmail of player &e{0} &aset to: {1}"
+email_removed = "&aEmail of player &e{0} &aunbound."
+info = "&e--- {0} ---\n&7Registered: &f{1}\n&7Last login: &f{2}\n&7Registration IP: &f{3}\n&7Last IP: &f{4}\n&7Email: &f{5}"
+accounts = "&eAccounts on {0}: &f{1}"
+admin_ip_kick = "&cJoining from this IP is not allowed for this administrator."
+kick_unregistered = "&cYour account has been removed by an administrator."
+kick_password_reset = "&cYour password was reset by an administrator. Please rejoin and log in."
+server_info = "&e=== UltraLogin System Status (Admin) ===\n&7Version: &f{0}\n&7Database Backend: &f{1}\n&7IP Sessions: &f{2}\n&7Email Recovery: &f{3}\n&7BCrypt Cost: &f{4}\n&7Auth Timeout: &f{5}s\n&e========================================"
+
+[misc]
+players_only = "&cThis command is only available to players."
+not_authenticated = "&cPlease log in first."
+only_prelogin = "&cThis command is only available before authentication."
+invalid_username_kick = "&cInvalid nickname. Allowed: letters, digits, underscore (3-16 characters)."
+db_error = "&cInternal error. Please try again later."
+status_authenticated = "&aAuthenticated"
+status_pending = "&cPending Login"
+mod_info = "&8&m-----------------------------------------------------\n&a&lUltraLogin &7v{0} &8| &fAuthentication System\n&7Your Status: {1}\n&8&m-----------------------------------------------------\n&e&lPlayer Commands:\n &a/register &7<pass> <confirm> &8- &fRegister a new account\n &a/login &7<pass>              &8- &fLog in to your account\n &a/changepassword &7<old> <new> &8- &fChange account password\n &a/email &7<add|change>         &8- &fManage recovery email\n &a/recovery &7<email|confirm>   &8- &fRecover lost password\n&8&m-----------------------------------------------------"

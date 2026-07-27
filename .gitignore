@@ -1,0 +1,29 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# IDE & Editors
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+.factorypath
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Project local artifacts & runtime databases
+AGENTS.md
+*.db
+run/
+logs/
+out/

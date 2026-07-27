@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Восстановление пароля</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:24px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;">
+          <tr>
+            <td style="background:#1f2937;padding:20px 32px;">
+              <h1 style="margin:0;color:#ffffff;font-size:20px;">{project}</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px;">
+              <p style="margin:0 0 16px;color:#111827;font-size:15px;">Здравствуйте, <strong>{player}</strong>!</p>
+              <p style="margin:0 0 16px;color:#374151;font-size:14px;line-height:1.6;">
+                Вы запросили восстановление пароля. Ваш одноразовый код:
+              </p>
+              <p style="margin:0 0 16px;text-align:center;">
+                <span style="display:inline-block;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:12px 24px;font-size:24px;letter-spacing:4px;font-weight:bold;color:#111827;">{code}</span>
+              </p>
+              <p style="margin:0 0 8px;color:#374151;font-size:14px;line-height:1.6;">
+                Введите на сервере: <code>/recovery confirm {code} &lt;новый_пароль&gt;</code>
+              </p>
+              <p style="margin:0;color:#6b7280;font-size:12px;line-height:1.6;">
+                Код действителен {ttl} минут. Если вы не запрашивали восстановление — просто проигнорируйте это письмо.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

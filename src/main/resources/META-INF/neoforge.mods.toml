@@ -1,0 +1,27 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+issueTrackerURL = "https://example.com/ultralogin/issues"
+
+[[mods]]
+modId = "ultralogin"
+version = "1.0.0"
+displayName = "UltraLogin"
+authors = "mrfenek"
+description = '''
+A highly customizable and powerful authorization mod for offline-mode servers, inspired by AuthMe
+'''
+
+[[dependencies.ultralogin]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1.0,21.2.0)"
+ordering = "NONE"
+side = "SERVER"
+
+[[dependencies.ultralogin]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1]"
+ordering = "NONE"
+side = "SERVER"
