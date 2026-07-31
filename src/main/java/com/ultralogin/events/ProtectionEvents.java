@@ -3,6 +3,7 @@ package com.ultralogin.events;
 import com.ultralogin.UltraLogin;
 import com.ultralogin.auth.PendingPlayer;
 import com.ultralogin.config.Messages;
+import com.ultralogin.config.UltraLoginConfig;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -41,17 +42,34 @@ public final class ProtectionEvents {
             double dx = player.getX() - state.returnPos.x;
             double dy = player.getY() - state.returnPos.y;
             double dz = player.getZ() - state.returnPos.z;
-            if (dx * dx + dy * dy + dz * dz > 0.04) {
-                player.connection.teleport(state.returnPos.x, state.returnPos.y, state.returnPos.z,
-                        state.yaw, state.pitch);
+            
+            boolean freezeRotation = UltraLoginConfig.SANDBOX_FREEZE_ROTATION.get();
+            boolean freezeMovement = UltraLoginConfig.SANDBOX_FREEZE_MOVEMENT.get();
+            
+            if (freezeRotation && freezeMovement) {
+                if (dx * dx + dy * dy + dz * dz > 0.04 || player.getYRot() != state.yaw || player.getXRot() != state.pitch) {
+                    player.connection.teleport(state.returnPos.x, state.returnPos.y, state.returnPos.z,
+                            state.yaw, state.pitch);
+                }
+            } else if (freezeRotation) {
+                if (player.getYRot() != state.yaw || player.getXRot() != state.pitch) {
+                    player.connection.teleport(player.getX(), player.getY(), player.getZ(),
+                            state.yaw, state.pitch);
+                }
+            } else if (freezeMovement) {
+                if (dx * dx + dy * dy + dz * dz > 0.04) {
+                    player.connection.teleport(state.returnPos.x, state.returnPos.y, state.returnPos.z,
+                            player.getYRot(), player.getXRot());
+                }
             }
+            
             UltraLogin.auth().tickPending(player);
         }
     }
 
     @SubscribeEvent
     public void onChat(ServerChatEvent event) {
-        if (locked(event.getPlayer())) {
+        if (UltraLoginConfig.SANDBOX_BLOCK_CHAT.get() && locked(event.getPlayer())) {
             event.setCanceled(true);
             event.getPlayer().sendSystemMessage(Messages.msg("prelogin.blocked_chat"));
         }
@@ -59,6 +77,9 @@ public final class ProtectionEvents {
 
     @SubscribeEvent
     public void onCommand(CommandEvent event) {
+        if (!UltraLoginConfig.SANDBOX_BLOCK_COMMANDS.get()) {
+            return;
+        }
         if (!(event.getParseResults().getContext().getSource().getEntity() instanceof ServerPlayer player)
                 || UltraLogin.auth().isAuthenticated(player)) {
             return;
@@ -77,84 +98,84 @@ public final class ProtectionEvents {
 
     @SubscribeEvent
     public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (locked(event.getEntity())) {
+        if (UltraLoginConfig.SANDBOX_BLOCK_INTERACT.get() && locked(event.getEntity())) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
-        if (locked(event.getEntity())) {
+        if (UltraLoginConfig.SANDBOX_BLOCK_INTERACT.get() && locked(event.getEntity())) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-        if (locked(event.getEntity())) {
+        if (UltraLoginConfig.SANDBOX_BLOCK_INTERACT.get() && locked(event.getEntity())) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
-        if (locked(event.getEntity())) {
+        if (UltraLoginConfig.SANDBOX_BLOCK_INTERACT.get() && locked(event.getEntity())) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public void onEntityInteractSpecific(PlayerInteractEvent.EntityInteractSpecific event) {
-        if (locked(event.getEntity())) {
+        if (UltraLoginConfig.SANDBOX_BLOCK_INTERACT.get() && locked(event.getEntity())) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public void onBlockBreak(BlockEvent.BreakEvent event) {
-        if (event.getPlayer() != null && locked(event.getPlayer())) {
+        if (UltraLoginConfig.SANDBOX_BLOCK_INTERACT.get() && event.getPlayer() != null && locked(event.getPlayer())) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public void onAttackEntity(AttackEntityEvent event) {
-        if (locked(event.getEntity())) {
+        if (UltraLoginConfig.SANDBOX_BLOCK_INTERACT.get() && locked(event.getEntity())) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public void onUseItem(LivingEntityUseItemEvent.Start event) {
-        if (event.getEntity() instanceof Player player && locked(player)) {
+        if (UltraLoginConfig.SANDBOX_BLOCK_INTERACT.get() && event.getEntity() instanceof Player player && locked(player)) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public void onIncomingDamage(LivingIncomingDamageEvent event) {
-        if (event.getEntity() instanceof Player player && locked(player)) {
+        if (UltraLoginConfig.SANDBOX_GODMODE.get() && event.getEntity() instanceof Player player && locked(player)) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public void onItemToss(ItemTossEvent event) {
-        if (locked(event.getPlayer())) {
+        if (UltraLoginConfig.SANDBOX_BLOCK_DROPS.get() && locked(event.getPlayer())) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public void onItemPickup(ItemEntityPickupEvent.Pre event) {
-        if (locked(event.getPlayer())) {
+        if (UltraLoginConfig.SANDBOX_BLOCK_DROPS.get() && locked(event.getPlayer())) {
             event.setCanPickup(TriState.FALSE);
         }
     }
 
     @SubscribeEvent
     public void onContainerOpen(PlayerContainerEvent.Open event) {
-        if (event.getEntity() instanceof ServerPlayer player && locked(player)) {
+        if (UltraLoginConfig.SANDBOX_BLOCK_INTERACT.get() && event.getEntity() instanceof ServerPlayer player && locked(player)) {
             player.closeContainer();
             player.sendSystemMessage(Messages.msg("prelogin.blocked_action"));
         }

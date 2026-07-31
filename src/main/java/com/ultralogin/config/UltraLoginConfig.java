@@ -19,6 +19,15 @@ public final class UltraLoginConfig {
     public static final ModConfigSpec.BooleanValue SESSIONS_ENABLED;
     public static final ModConfigSpec.IntValue SESSION_MINUTES;
 
+    public static final ModConfigSpec.BooleanValue SANDBOX_FREEZE_MOVEMENT;
+    public static final ModConfigSpec.BooleanValue SANDBOX_FREEZE_ROTATION;
+    public static final ModConfigSpec.BooleanValue SANDBOX_HIDE_INVENTORY;
+    public static final ModConfigSpec.BooleanValue SANDBOX_BLOCK_CHAT;
+    public static final ModConfigSpec.BooleanValue SANDBOX_BLOCK_COMMANDS;
+    public static final ModConfigSpec.BooleanValue SANDBOX_BLOCK_INTERACT;
+    public static final ModConfigSpec.BooleanValue SANDBOX_BLOCK_DROPS;
+    public static final ModConfigSpec.BooleanValue SANDBOX_GODMODE;
+
     public static final ModConfigSpec.IntValue MAX_LOGIN_ATTEMPTS;
     public static final ModConfigSpec.IntValue IP_BAN_MINUTES;
     public static final ModConfigSpec.IntValue MAX_ACCOUNTS_PER_IP;
@@ -95,6 +104,41 @@ public final class UltraLoginConfig {
                 .comment("Duration of an IP session in minutes.",
                         "Длительность IP-сессии в минутах.")
                 .defineInRange("sessionMinutes", 10, 1, 1440);
+        b.pop();
+
+        b.push("sandbox");
+        SANDBOX_FREEZE_MOVEMENT = b
+                .comment("Prevent players from moving before authentication.",
+                        "Запретить игрокам передвигаться до авторизации.")
+                .define("freezeMovement", true);
+        SANDBOX_FREEZE_ROTATION = b
+                .comment("Prevent players from turning their head (camera) before authentication.",
+                        "Запретить игрокам крутить головой (камерой) до авторизации.")
+                .define("freezeRotation", false);
+        SANDBOX_HIDE_INVENTORY = b
+                .comment("Hide the player's inventory (stash it) before authentication.",
+                        "Скрывать (прятать) инвентарь игрока до авторизации.")
+                .define("hideInventory", true);
+        SANDBOX_BLOCK_CHAT = b
+                .comment("Block chat messages before authentication.",
+                        "Блокировать сообщения в чат до авторизации.")
+                .define("blockChat", true);
+        SANDBOX_BLOCK_COMMANDS = b
+                .comment("Block non-auth commands before authentication.",
+                        "Блокировать команды до авторизации.")
+                .define("blockCommands", true);
+        SANDBOX_BLOCK_INTERACT = b
+                .comment("Block world interaction (blocks, entities) before authentication.",
+                        "Блокировать взаимодействие с миром (блоки, сущности) до авторизации.")
+                .define("blockInteraction", true);
+        SANDBOX_BLOCK_DROPS = b
+                .comment("Block dropping and picking up items before authentication.",
+                        "Блокировать выбрасывание и подбор предметов до авторизации.")
+                .define("blockItemDrops", true);
+        SANDBOX_GODMODE = b
+                .comment("Make players invulnerable to damage before authentication.",
+                        "Сделать игроков неуязвимыми до авторизации.")
+                .define("godmode", true);
         b.pop();
 
         b.push("security");

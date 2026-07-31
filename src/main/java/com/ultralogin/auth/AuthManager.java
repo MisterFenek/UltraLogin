@@ -30,14 +30,17 @@ public final class AuthManager {
     }
 
     public void beginPreLogin(ServerPlayer player) {
-        Inventory inv = player.getInventory();
-        List<ItemStack> stash = new ArrayList<>(inv.getContainerSize());
-        for (int i = 0; i < inv.getContainerSize(); i++) {
-            stash.add(inv.getItem(i).copy());
+        List<ItemStack> stash = null;
+        if (UltraLoginConfig.SANDBOX_HIDE_INVENTORY.get()) {
+            Inventory inv = player.getInventory();
+            stash = new ArrayList<>(inv.getContainerSize());
+            for (int i = 0; i < inv.getContainerSize(); i++) {
+                stash.add(inv.getItem(i).copy());
+            }
+            inv.clearContent();
+            player.containerMenu.broadcastChanges();
+            player.inventoryMenu.broadcastChanges();
         }
-        inv.clearContent();
-        player.containerMenu.broadcastChanges();
-        player.inventoryMenu.broadcastChanges();
 
         int timeoutTicks = UltraLoginConfig.AUTH_TIMEOUT_SECONDS.get() * 20;
         PendingPlayer state = new PendingPlayer(
@@ -51,7 +54,9 @@ public final class AuthManager {
                 timeoutTicks);
         pending.put(player.getUUID(), state);
 
-        player.setInvulnerable(true);
+        if (UltraLoginConfig.SANDBOX_GODMODE.get()) {
+            player.setInvulnerable(true);
+        }
     }
 
     public void authenticate(ServerPlayer player) {
@@ -60,30 +65,57 @@ public final class AuthManager {
             return;
         }
         restore(player, state);
-        player.connection.teleport(state.returnPos.x, state.returnPos.y, state.returnPos.z, state.yaw, state.pitch);
+        if (UltraLoginConfig.SANDBOX_FREEZE_MOVEMENT.get() || UltraLoginConfig.SANDBOX_FREEZE_ROTATION.get()) {
+            player.connection.teleport(state.returnPos.x, state.returnPos.y, state.returnPos.z, state.yaw, state.pitch);
+        }
         LOGGER.info("[UltraLogin] {} authenticated", player.getGameProfile().getName());
     }
 
     public void handleLogoutWithoutAuth(ServerPlayer player) {
         PendingPlayer state = pending.remove(player.getUUID());
-        if (state == null || state.stashedInventory == null) {
+        if (state == null) {
             return;
         }
         restore(player, state);
-        player.setPos(state.returnPos.x, state.returnPos.y, state.returnPos.z);
-        player.setYRot(state.yaw);
-        player.setXRot(state.pitch);
+        
+        if (UltraLoginConfig.SANDBOX_FREEZE_MOVEMENT.get() || UltraLoginConfig.SANDBOX_FREEZE_ROTATION.get()) {
+            player.setPos(state.returnPos.x, state.returnPos.y, state.returnPos.z);
+            player.setYRot(state.yaw);
+            player.setXRot(state.pitch);
+        }
     }
 
     private void restore(ServerPlayer player, PendingPlayer state) {
-        Inventory inv = player.getInventory();
-        inv.clearContent();
-        for (int i = 0; i < state.stashedInventory.size() && i < inv.getContainerSize(); i++) {
-            inv.setItem(i, state.stashedInventory.get(i));
+        if (state.stashedInventory != null) {
+            Inventory inv = player.getInventory();
+            
+            // Collect any items acquired while unauthenticated (e.g. starter kits)
+            List<ItemStack> newItems = new ArrayList<>();
+            for (int i = 0; i < inv.getContainerSize(); i++) {
+                ItemStack stack = inv.getItem(i);
+                if (!stack.isEmpty()) {
+                    newItems.add(stack.copy());
+                }
+            }
+            
+            inv.clearContent();
+            
+            // Restore original stashed inventory
+            for (int i = 0; i < state.stashedInventory.size() && i < inv.getContainerSize(); i++) {
+                inv.setItem(i, state.stashedInventory.get(i));
+            }
+            
+            // Give back the items acquired during unauth
+            for (ItemStack newItem : newItems) {
+                if (!player.getInventory().add(newItem)) {
+                    player.drop(newItem, false);
+                }
+            }
         }
+        
         player.getFoodData().setFoodLevel(state.foodLevel);
         player.getFoodData().setSaturation(state.saturation);
-        player.setInvulnerable(false);
+        player.setInvulnerable(false); // Clear godmode
         player.containerMenu.broadcastChanges();
         player.inventoryMenu.broadcastChanges();
     }
