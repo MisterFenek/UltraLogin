@@ -145,15 +145,31 @@ public final class AuthManager {
     }
 
     public void revokeAuthentication(ServerPlayer player) {
-        PendingPlayer dummy = new PendingPlayer(
+        revokeAuthenticationByUuid(
+                player.getUUID(),
                 player.serverLevel().dimension(),
                 player.position(),
                 player.getYRot(),
                 player.getXRot(),
-                null,
                 player.getFoodData().getFoodLevel(),
-                player.getFoodData().getSaturationLevel(),
+                player.getFoodData().getSaturationLevel());
+    }
+
+    void revokeAuthenticationByUuid(UUID uuid, net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dim,
+                                    Vec3 pos, float yaw, float pitch, int food, float sat) {
+        PendingPlayer existing = pending.get(uuid);
+        if (existing != null) {
+            return; // Already unauthenticated, leave the existing state (and stash) intact
+        }
+        PendingPlayer dummy = new PendingPlayer(
+                dim,
+                pos,
+                yaw,
+                pitch,
+                null,
+                food,
+                sat,
                 0);
-        pending.put(player.getUUID(), dummy);
+        pending.put(uuid, dummy);
     }
 }
