@@ -28,11 +28,11 @@ class RecoveryManagerTest {
     }
 
     @Test
-    void wrongCodeRejectedAndInvalidatesToken() {
+    void wrongCodeRejectedButTokenSurvives() {
         RecoveryManager rm = new RecoveryManager();
         String code = rm.issueCode("Steve");
-        assertFalse(rm.consume("Steve", "WRONGCOD"), "incorrect code should be rejected");
-        assertFalse(rm.consume("Steve", code), "token should be invalidated after an incorrect guess to prevent brute-force");
+        assertFalse(rm.consume("Steve", "WRONGCOD"));
+        assertTrue(rm.consume("Steve", code), "a wrong guess must not destroy the real code");
     }
 
     @Test

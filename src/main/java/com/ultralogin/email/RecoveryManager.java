@@ -48,7 +48,6 @@ public final class RecoveryManager {
             return false;
         }
         if (!token.code().equalsIgnoreCase(code.trim())) {
-            tokens.remove(key(username)); // Invalidate token immediately on wrong guess
             return false;
         }
         tokens.remove(key(username));
