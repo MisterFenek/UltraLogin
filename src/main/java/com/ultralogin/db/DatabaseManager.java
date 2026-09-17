@@ -103,9 +103,6 @@ public final class DatabaseManager implements AutoCloseable {
 
     @Override
     public void close() {
-        if (dataSource != null) {
-            dataSource.close();
-        }
         executor.shutdown();
         try {
             if (!executor.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS)) {
@@ -115,6 +112,9 @@ public final class DatabaseManager implements AutoCloseable {
         } catch (InterruptedException e) {
             executor.shutdownNow();
             Thread.currentThread().interrupt();
+        }
+        if (dataSource != null) {
+            dataSource.close();
         }
     }
 }

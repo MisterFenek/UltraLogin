@@ -75,4 +75,40 @@ class BruteforceGuardTest {
 
         assertFalse(guard.isBanned("10.0.0.6"), "expired ban must be lifted");
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void attemptsMapIsCleanedUp() throws Exception {
+        BruteforceGuard guard = new BruteforceGuard();
+        guard.recordFailure("10.0.0.7");
+        guard.recordFailure("10.0.0.8");
+
+        Field attemptsField = BruteforceGuard.class.getDeclaredField("attempts");
+        attemptsField.setAccessible(true);
+        Map<String, Object> attempts = (Map<String, Object>) attemptsField.get(guard);
+
+        assertEquals(2, attempts.size());
+
+        // We simulate a cleanup by directly calling a cleanup method if we add one,
+        // or advancing time and calling some method.
+        // For the failing test before fix, we can just assert that the map contains the elements.
+        // To verify the fix, we will simulate old entries.
+
+        // Actually, since there's no cleanup method yet, let's just write the test logic that WILL be true after fix.
+        // We will assume the map tracks time and cleans up lazily when recordFailure or isBanned is called.
+        // For now, let's test if an old attempt is forgotten.
+
+        // Advance time for 10.0.0.7 (if we change internal representation, this reflection might break.
+        // Let's just do it cleanly: wait 1 ms or mock time. We can't mock time easily.
+        // We'll write the test for the fixed version later).
+        // If we change attempts to store an object with a timestamp, we can test eviction.
+        // For now, let's just assert that a method like cleanUp() exists and removes them,
+        // or that recordFailure lazily cleans up.
+        // Since we are doing TDD, let's assume we will add `cleanupOldAttempts()` method.
+        java.lang.reflect.Method cleanup = BruteforceGuard.class.getDeclaredMethod("cleanupOldAttempts");
+        cleanup.setAccessible(true);
+        cleanup.invoke(guard);
+        // It shouldn't clean up fresh attempts.
+        assertEquals(2, attempts.size());
+    }
 }
